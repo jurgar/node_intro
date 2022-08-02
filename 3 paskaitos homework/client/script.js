@@ -3,9 +3,9 @@ fetch("http://localhost:8080/")
   .then((response) => {
     console.log(response);
     const ul = document.createElement("ul");
-    response.forEach((names) => {
+    response.forEach((name) => {
       const li = document.createElement("li");
-      li.textContent = names;
+      li.textContent = name;
       ul.append(li);
     });
   })
