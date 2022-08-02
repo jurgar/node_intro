@@ -18,12 +18,5 @@ fetch("http://localhost:8080/users", {
   headers: {
     "Content-Type": "application/json",
   },
-
-
-  fetch("http://localhost:8080/users", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
   body: JSON.stringify(["Rima"]),
 });
