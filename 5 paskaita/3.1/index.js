@@ -10,7 +10,7 @@ app.use(express.json());
 const names = ["Jurga"];
 
 app.get("/names", (req, res) => {
-  res.status = 200;
+  const 
   res.send(names);
 });
 

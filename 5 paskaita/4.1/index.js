@@ -14,8 +14,9 @@ const cars = {
 };
 
 app.get("/cars/:model", (req, res) => {
-  console.log(req.params.model);
-  res.send("cars/bmw");
+  const selectedModel = req.params.model;
+
+  res.send(cars[selectedModel]);
 });
 
 app.listen(PORT, () =>

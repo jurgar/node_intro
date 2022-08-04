@@ -360,9 +360,23 @@ const data = JSON.parse(`[{
   }]
   `);
 
+// Pirma uzduotis
+
 app.get("/", (req, res) => {
   res.send(data);
 });
+
+
+// Antra uzduotis
+
+app.get("/", (req, res) => {
+  const carBrandOwners = data.filter(
+    (user) =>user.car.toLowerCase()=== req.params.model.toLowerCase()
+  );
+  res.send(carBrandOwners);
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
