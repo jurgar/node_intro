@@ -90,9 +90,9 @@ app.get("/count/:product", async (req, res) => {
     const data = await con
       .db("9paskaita")
       .collection("orders")
-      .count({ product: req.params.product });
+      .count({ product: req.params.product }); // kintanti
     await con.close();
-    res.send({ count: data });
+    res.send({ count: data }); // kintanti
   } catch (error) {
     res.status(500).send({ error });
   }
@@ -112,4 +112,4 @@ app.get("/many", async (req, res) => {
   }
 });
 
-app.listen(port, () => console.log(`Server is running on port: ${port}`));
+app.listen(PORT, () => console.log(`Server is running on port: ${port}`));
