@@ -1,14 +1,13 @@
 const express = require("express"); // importas
 const cors = require("cors");
 const { MongoClient, ObjectId } = require("mongodb");
-
 require("dotenv").config();
 
 const app = express(); // sukuriama aplikacija
-app.use(cors());
-app.use(express.json()); // musu informacija gristu json formatu
+app.use(express.json());
+app.use(cors()); // musu informacija gristu json formatu
 
-const PORT = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
 const uri = process.env.CONNECTION;
 
 const client = new MongoClient(uri);
@@ -18,27 +17,13 @@ const client = new MongoClient(uri);
 
 //localhost:3000/users/matas@gmail.com
 
-app.delete("/users/:id", async (req, res) => {
-  try {
-    const con = await client.connect();
-    const data = await con
-      .db("10paskaita")
-      .collection("users")
-      .insertMany({ _id: ObjectId(req.params.id) });
-    await con.close();
-    res.send(data);
-  } catch (error) {
-    res.status(500).send({ error });
-  }
-});
-
-// app.delete("/users/:email", async (req, res) => {
+// app.delete("/users/:id", async (req, res) => {
 //   try {
 //     const con = await client.connect();
 //     const data = await con
 //       .db("10paskaita")
 //       .collection("users")
-//       .insertMany({ email: req.params.email });
+//       .deleteOne({ _id: ObjectId(req.params.id) });
 //     await con.close();
 //     res.send(data);
 //   } catch (error) {
@@ -46,6 +31,35 @@ app.delete("/users/:id", async (req, res) => {
 //   }
 // });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on the port ${PORT}`);
+// app.delete("/users/:email", async (req, res) => {
+//   try {
+//     const con = await client.connect();
+//     const data = await con
+//       .db("10paskaita")
+//       .collection("users")
+//       .deleteOne({ email: req.params.email });
+//     await con.close();
+//     res.send(data);
+//   } catch (error) {
+//     res.status(500).send({ error });
+//   }
+// });
+
+app.get("/users/:name", async (req, res) => {
+  try {
+    const con = await client.connect();
+    const data = await con
+      .db("10paskaita")
+      .collection("users")
+      .find({ name: req.params.name })
+      .toArray();
+    await con.close();
+    res.send(data);
+  } catch (error) {
+    res.status(500).send({ error });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
