@@ -1,10 +1,14 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable no-shadow */
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-undef */
+/* eslint-disable spaced-comment */
+/* eslint-disable prefer-destructuring */
 const express = require("express");
 const mysql = require("mysql2/promise");
 
-const jwt = require("jsonwebtoken");
-
-const { dbconfig, jwtSecret } = require("../config");
-const { isLoggedIn } = require("../middleware");
+const { dbconfig } = require("../config");
+const { isLoggedIn, isAuth } = require("../middleware");
 
 const router = express.Router();
 
@@ -13,7 +17,7 @@ router.get("/user-tutorials/:id", isLoggedIn, async (req, res) => {
     const id = req.params.id;
     const con = await mysql.createConnection(dbconfig);
     const [response] = await con.execute(
-      `SELECT * FROM tutorials WHERE user_id-${id}`
+      `SELECT * FROM tutorials WHERE user_id=${id};`
     );
     await con.end();
     res.send(response);
@@ -21,66 +25,39 @@ router.get("/user-tutorials/:id", isLoggedIn, async (req, res) => {
     res.status(400).send({ error: "Error" });
   }
 });
+/*veikia rasant pvz localhost:3000/tutorials/user-tutorials/1 */
 
 router.get("/", async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1] || "";
-    console.log(token);
-    const user = jwt.verify(token, jwtSecret);
-    console.log(user);
-    if (user) {
-      const con = await mysql.createConnection(dbconfig);
-      const [response] = await con.execute(`SELECT * FROM tutorials`);
-      await con.end();
-      res.send(response);
-    } else {
-      console.log("Not connected");
-    }
+    const isAuthenticated = await isAuth(req);
+    const con = await mysql.createConnection(dbconfig);
+    const [response] = await con.execute(
+      `SELECT * FROM tutorials ${isAuthenticated} ? '' : WHERE private = 0;`
+    );
+    res.send(response);
+    await con.end();
   } catch (e) {
     res.status(400).send({ error: "Error" });
   }
 });
+// cia paziuri ar prisijunges ir paduoda atitnkama info, jei prisijunges rodo viska,
+//jei ne tada todo tik tuos, kurie private = 0
 
-router.post("/tutorials", async (req, res) => {
-  let userData = req.body;
-
+router.post("/", isLoggedIn, async (req, res) => {
   try {
-    userData = await userSchema.validateAsync(userData);
-  } catch (e) {
-    res.status(400).send({ error: "Incorect data " });
-  }
-
-  try {
-    const con = await mysql.createConnection(dbconfig);
-
-    const [response] = await con.execute(
-      `SELECT * FROM users WHERE email = ${mysql.escape(userData.email)}`
+    const userId = req.user.id;
+    const con = await mysql.createConnection(dbConfig);
+    const [data] = await con.execute(
+      `INSERT INTO tutorials (user_id, title, content) VALUES (${mysql.escape(
+        userId
+      )}, ${mysql.escape(req.body.title)}, ${mysql.escape(req.body.content)})`
     );
-
+    res.send(data);
     await con.end();
-
-    if (response.length === 0) {
-      return res.status(400).send({ error: "Incorrect email" });
-    }
-
-    const isAuthed = bcrypt.compareSync(
-      userData.password,
-      response[0].password
-    );
-
-    if (isAuthed) {
-      const token = jwt.sign(
-        { id: response[0].id, email: response[0].email },
-        jwtSecret
-      );
-
-      res.send({ token });
-    } else {
-      res.status(400).send({ error: "Incorrect password" });
-    }
-  } catch (e) {
-    res.status(500).send({ error: "Server error" });
+  } catch (err) {
+    res.status(400).send({ err: "Error" });
   }
 });
+//issiusti duomenis jie esi prisijunges
 
 module.exports = router;

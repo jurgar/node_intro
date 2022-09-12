@@ -1,5 +1,5 @@
 {
-    "title": "Cars MySql",
+    "title": "Vet",
     "version": "0.1",
     "scripts": {
         "start": "nodemon src/index.js"

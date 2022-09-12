@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const jwt = require("jsonwebtoken");
 
 const { jwtSecret } = require("./config");
@@ -10,8 +11,16 @@ module.exports = {
       req.body = user;
       next();
     } catch (error) {
-      console.error(error);
       res.status(401).send({ error: "Invalid token" });
+    }
+  },
+  isAuth: async (req) => {
+    try {
+      const token = req.headers.authorization?.split(" ")[1];
+      jwt.verify(token, jwtSecret);
+      return true;
+    } catch (error) {
+      return false;
     }
   },
 };

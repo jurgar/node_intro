@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* eslint-disable newline-per-chained-call */
 const express = require("express");
 const mysql = require("mysql2/promise");
@@ -31,8 +32,8 @@ router.post("/register", async (req, res) => {
 
     const response = await con.execute(
       `INSERT INTO users (email, password) values (${mysql.escape(
-        userData.email,
-      )}, '${hashedPassword}')`,
+        userData.email
+      )}, '${hashedPassword}')`
     );
 
     res.send(response[0]);
@@ -42,6 +43,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// eslint-disable-next-line consistent-return
 router.post("/login", async (req, res) => {
   let userData = req.body;
 
@@ -55,7 +57,7 @@ router.post("/login", async (req, res) => {
     const con = await mysql.createConnection(dbconfig);
 
     const [response] = await con.execute(
-      `SELECT * FROM users WHERE email = ${mysql.escape(userData.email)}`,
+      `SELECT * FROM users WHERE email = ${mysql.escape(userData.email)}`
     );
 
     await con.end();
@@ -66,18 +68,18 @@ router.post("/login", async (req, res) => {
 
     const isAuthed = bcrypt.compareSync(
       userData.password,
-      response[0].password,
+      response[0].password
     );
 
     if (isAuthed) {
       const token = jwt.sign(
         { id: response[0].id, email: response[0].email },
-        jwtSecret,
+        jwtSecret
       );
 
       res.send({ token });
     } else {
-      res.status(400).send({ error: "Incorrect password" });
+      return res.status(400).send({ error: "Incorrect password" });
     }
   } catch (e) {
     res.status(500).send({ error: "Server error" });
